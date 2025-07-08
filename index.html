@@ -1,86 +1,125 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Fire Station Locator UK</title>
     <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-      #controls { padding: 20px; background: #f2f2f2; }
-      #map { height: 80vh; width: 100%; }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #map { height: 500px; width: 100%; margin-top: 20px; }
+        label, select, input { margin-top: 10px; display: block; }
+        button { margin-right: 10px; }
     </style>
-    <script>
-      let map;
-      const fireStations = [
-        { name: "Leeds Fire Station", lat: 53.795, lng: -1.540 },
-        { name: "Bradford Fire Station", lat: 53.793, lng: -1.755 },
-        { name: "Sheffield Central", lat: 53.382, lng: -1.471 },
-        { name: "Manchester Central", lat: 53.481, lng: -2.242 },
-        { name: "Liverpool City", lat: 53.408, lng: -2.991 },
-        { name: "York Fire Station", lat: 53.957, lng: -1.082 },
-        { name: "Hull Central", lat: 53.744, lng: -0.345 },
-        { name: "Nottingham Central", lat: 52.954, lng: -1.158 },
-        { name: "Durham Fire Station", lat: 54.778, lng: -1.575 },
-        { name: "Newcastle Central", lat: 54.978, lng: -1.617 },
-      ];
+</head>
+<body>
+    <h2>Fire Station Locator UK</h2>
+    <label for="postcode">Enter postcode:</label>
+    <input type="text" id="postcode" placeholder="e.g. LS1 1UR" />
 
-      function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 53.8, lng: -1.5 },
-          zoom: 7,
-        });
-      }
-
-      function searchStations() {
-        const postcode = document.getElementById("postcode").value;
-        const radiusMiles = parseInt(document.getElementById("radius").value);
-        if (!postcode) return alert("Please enter a postcode");
-
-        fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(postcode)}&key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ`)
-          .then(response => response.json())
-          .then(data => {
-            if (!data.results || !data.results.length) {
-              alert("Postcode not found");
-              return;
-            }
-            const location = data.results[0].geometry.location;
-            const center = new google.maps.LatLng(location.lat, location.lng);
-            map.setCenter(center);
-            map.setZoom(10);
-
-            const radiusMeters = radiusMiles * 1609.34;
-            fireStations.forEach(station => {
-              const stationLoc = new google.maps.LatLng(station.lat, station.lng);
-              const distance = google.maps.geometry.spherical.computeDistanceBetween(center, stationLoc);
-              if (distance <= radiusMeters) {
-                new google.maps.Marker({
-                  map,
-                  position: stationLoc,
-                  title: station.name,
-                });
-              }
-            });
-          });
-      }
-    </script>
-  </head>
-  <body>
-    <div id="controls">
-      <h2>Fire Station Locator UK</h2>
-      <label>Enter postcode:</label>
-      <input type="text" id="postcode" placeholder="e.g. LS1 1UR" />
-      <br />
-      <label>Search radius (miles):</label>
-      <select id="radius">
+    <label for="radius">Search radius (miles):</label>
+    <select id="radius">
         <option value="1">1 mile</option>
         <option value="5">5 miles</option>
         <option value="10" selected>10 miles</option>
         <option value="20">20 miles</option>
         <option value="50">50 miles</option>
         <option value="100">100 miles</option>
-      </select>
-      <button onclick="searchStations()">Search</button>
-    </div>
+    </select>
+
+    <button onclick="search()">Search</button>
+    <button onclick="reset()">Reset</button>
+
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&libraries=geometry&callback=initMap" async defer></script>
-  </body>
+
+    <script>
+        let map;
+        let markers = [];
+
+        const stations = [
+            { name: "Leeds Central", lat: 53.8008, lng: -1.5491 },
+            { name: "Bradford", lat: 53.7950, lng: -1.7594 },
+            { name: "Wakefield", lat: 53.6824, lng: -1.4952 },
+            { name: "York", lat: 53.9590, lng: -1.0815 },
+            { name: "Sheffield Central", lat: 53.3811, lng: -1.4701 },
+            { name: "Manchester Central", lat: 53.4808, lng: -2.2426 },
+            { name: "Huddersfield", lat: 53.6458, lng: -1.7850 },
+            { name: "Halifax", lat: 53.7200, lng: -1.8562 },
+            { name: "Harrogate", lat: 53.9915, lng: -1.5412 },
+            { name: "Doncaster", lat: 53.5228, lng: -1.1312 }
+        ];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 53.8, lng: -1.55 },
+                zoom: 8
+            });
+        }
+
+        function search() {
+            const postcode = document.getElementById("postcode").value;
+            const radius = parseInt(document.getElementById("radius").value);
+
+            if (!postcode) {
+                alert("Please enter a postcode.");
+                return;
+            }
+
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: postcode }, function(results, status) {
+                if (status === "OK") {
+                    const userLocation = results[0].geometry.location;
+                    map.setCenter(userLocation);
+                    map.setZoom(10);
+
+                    // Clear previous markers
+                    markers.forEach(m => m.setMap(null));
+                    markers = [];
+
+                    stations.forEach(station => {
+                        const distance = haversine(userLocation.lat(), userLocation.lng(), station.lat, station.lng);
+                        if (distance <= radius) {
+                            const marker = new google.maps.Marker({
+                                position: { lat: station.lat, lng: station.lng },
+                                map: map,
+                                title: station.name
+                            });
+                            markers.push(marker);
+                        }
+                    });
+
+                    if (markers.length === 0) {
+                        alert("No stations found within the selected radius.");
+                    }
+                } else {
+                    alert("Postcode not found.");
+                }
+            });
+        }
+
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; // miles
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function toRad(value) {
+            return value * Math.PI / 180;
+        }
+
+        function reset() {
+            document.getElementById("postcode").value = "";
+            document.getElementById("radius").value = "10";
+            markers.forEach(m => m.setMap(null));
+            markers = [];
+            map.setCenter({ lat: 53.8, lng: -1.55 });
+            map.setZoom(8);
+        }
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
+    </script>
+</body>
 </html>
