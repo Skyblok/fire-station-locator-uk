@@ -1,111 +1,121 @@
-// Get elements
-const searchBtn = document.getElementById("searchBtn");
-const resetBtn = document.getElementById("resetBtn");
-const postcodeInput = document.getElementById("postcode");
-const radiusInput = document.getElementById("radius");
-const stationsList = document.getElementById("stationsList");
-
 let map;
 let markers = [];
-let fireStations = [];
 let infoWindow;
+let stationData = [];
 
-// Initialize the map
-function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 54.5, lng: -3 },
-    zoom: 6,
+async function initMap() {
+  const response = await fetch('stations.json');
+  stationData = await response.json();
+
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 53.7997, lng: -1.5492 },
+    zoom: 8,
+    styles: [ { elementType: "geometry", stylers: [{ color: "#212121" }] } ]
   });
+
   infoWindow = new google.maps.InfoWindow();
-  fetch("stations.json")
-    .then(response => response.json())
-    .then(data => {
-      fireStations = data;
-    });
+
+  document.getElementById('searchBtn').addEventListener('click', runSearch);
+  document.getElementById('resetBtn').addEventListener('click', resetSearch);
+
+  displayStations(stationData);
 }
 
-function searchStations() {
-  const postcode = postcodeInput.value.trim();
-  const radiusMiles = parseFloat(radiusInput.value);
-  if (!postcode) return alert("Please enter a postcode.");
+function resetSearch() {
+  document.getElementById('postcode').value = '';
+  document.getElementById('radius').value = '5';
+  document.querySelectorAll('.status-filter').forEach(cb => cb.checked = true);
+  displayStations(stationData);
+}
 
-  fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(postcode)}&key=YOUR_API_KEY`)
-    .then(response => response.json())
+function runSearch() {
+  const postcode = document.getElementById('postcode').value.trim();
+  const radius = parseInt(document.getElementById('radius').value);
+  const statusFilters = Array.from(document.querySelectorAll('.status-filter'))
+    .filter(cb => cb.checked).map(cb => cb.value);
+
+  if (!postcode) return;
+
+  fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(postcode)}&key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ`)
+    .then(res => res.json())
     .then(data => {
-      if (!data.results.length) return alert("Postcode not found.");
       const location = data.results[0].geometry.location;
       map.setCenter(location);
       map.setZoom(10);
-      clearMarkers();
-      displayStations(location, radiusMiles);
-    })
-    .catch(error => alert("Geocoding failed: " + error));
+
+      // Add pink marker
+      new google.maps.Marker({
+        map,
+        position: location,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: "#FF00FF",
+          fillOpacity: 1,
+          strokeWeight: 2,
+          strokeColor: "white"
+        }
+      });
+
+      const filtered = stationData.filter(station => {
+        const dist = haversine(location.lat, location.lng, station.lat, station.lng);
+        return dist <= radius && statusFilters.includes(station.status);
+      });
+
+      displayStations(filtered);
+    });
 }
 
-function displayStations(center, radiusMiles) {
-  const results = fireStations.filter(station => {
-    const dist = haversineDistance(center, station, true);
-    return dist <= radiusMiles;
-  });
+function displayStations(stations) {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
 
-  results.sort((a, b) => haversineDistance(center, a, true) - haversineDistance(center, b, true));
-  stationsList.innerHTML = "";
+  const list = document.getElementById('stationsList');
+  list.innerHTML = '';
 
-  results.forEach(station => {
+  stations.forEach(station => {
     const marker = new google.maps.Marker({
+      map,
       position: { lat: station.lat, lng: station.lng },
-      map: map,
       title: station.name,
+      icon: {
+        url: getMarkerColor(station.status)
+      }
     });
-    markers.push(marker);
 
-    marker.addListener("click", () => {
-      infoWindow.setContent(`
-        <div style="font-size: 14px;">
-          <strong>${station.name}</strong><br>
-          ${station.postcode}<br>
-          <a href="${station.url}" target="_blank">View Details</a>
-        </div>
-      `);
+    marker.addListener('click', () => {
+      infoWindow.setContent(\`
+        <strong>\${station.name}</strong><br>
+        \${station.postcode}<br>
+        <a href="\${station.url}" target="_blank">View Details</a>
+      \`);
       infoWindow.open(map, marker);
     });
 
-    const li = document.createElement("li");
-    li.innerHTML = `<strong>${station.name}</strong> (${station.postcode}) - <a href="${station.url}" target="_blank">Details</a>`;
-    stationsList.appendChild(li);
+    markers.push(marker);
+
+    const li = document.createElement('li');
+    li.innerHTML = \`\${station.name} (\${station.status}) - \${station.postcode}\`;
+    list.appendChild(li);
   });
 }
 
-function clearMarkers() {
-  markers.forEach(marker => marker.setMap(null));
-  markers = [];
-}
-
-function haversineDistance(loc1, loc2, miles) {
-  function toRad(x) {
-    return (x * Math.PI) / 180;
+function getMarkerColor(status) {
+  switch (status) {
+    case 'Wholetime': return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+    case 'Retained': return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+    case 'Day Crewed': return 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+    default: return 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
   }
-  const R = miles ? 3958.8 : 6371;
-  const dLat = toRad(loc2.lat - loc1.lat);
-  const dLng = toRad(loc2.lng - loc1.lng);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(loc1.lat)) *
-      Math.cos(toRad(loc2.lat)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
 }
 
-searchBtn.addEventListener("click", searchStations);
-resetBtn.addEventListener("click", () => {
-  postcodeInput.value = "";
-  radiusInput.value = "5";
-  stationsList.innerHTML = "";
-  clearMarkers();
-  map.setCenter({ lat: 54.5, lng: -3 });
-  map.setZoom(6);
-});
-
-window.initMap = initMap;
+function haversine(lat1, lon1, lat2, lon2) {
+  function toRad(x) { return x * Math.PI / 180; }
+  const R = 3958.8; // miles
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}

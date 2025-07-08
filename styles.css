@@ -1,0 +1,33 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #0b1d26;
+  color: white;
+}
+header {
+  background: #001f3f;
+  padding: 10px;
+  text-align: center;
+}
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  background: #001530;
+}
+#map {
+  height: 500px;
+  width: 100%;
+}
+#results {
+  padding: 10px;
+  background: #0b1d26;
+}
+button {
+  background: limegreen;
+  color: black;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}

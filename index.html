@@ -1,125 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fire Station Locator UK</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        #map { height: 500px; width: 100%; margin-top: 20px; }
-        label, select, input { margin-top: 10px; display: block; }
-        button { margin-right: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fire Station Locator UK</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 </head>
 <body>
-    <h2>Fire Station Locator UK</h2>
-    <label for="postcode">Enter postcode:</label>
-    <input type="text" id="postcode" placeholder="e.g. LS1 1UR" />
-
-    <label for="radius">Search radius (miles):</label>
+  <header><h1>Fire Station Locator UK</h1></header>
+  <section id="controls">
+    <input id="postcode" placeholder="Enter postcode..." />
     <select id="radius">
-        <option value="1">1 mile</option>
-        <option value="5">5 miles</option>
-        <option value="10" selected>10 miles</option>
-        <option value="20">20 miles</option>
-        <option value="50">50 miles</option>
-        <option value="100">100 miles</option>
+      <option value="1">1 mile</option>
+      <option value="5" selected>5 miles</option>
+      <option value="10">10 miles</option>
+      <option value="20">20 miles</option>
+      <option value="50">50 miles</option>
+      <option value="100">100 miles</option>
     </select>
-
-    <button onclick="search()">Search</button>
-    <button onclick="reset()">Reset</button>
-
-    <div id="map"></div>
-
-    <script>
-        let map;
-        let markers = [];
-
-        const stations = [
-            { name: "Leeds Central", lat: 53.8008, lng: -1.5491 },
-            { name: "Bradford", lat: 53.7950, lng: -1.7594 },
-            { name: "Wakefield", lat: 53.6824, lng: -1.4952 },
-            { name: "York", lat: 53.9590, lng: -1.0815 },
-            { name: "Sheffield Central", lat: 53.3811, lng: -1.4701 },
-            { name: "Manchester Central", lat: 53.4808, lng: -2.2426 },
-            { name: "Huddersfield", lat: 53.6458, lng: -1.7850 },
-            { name: "Halifax", lat: 53.7200, lng: -1.8562 },
-            { name: "Harrogate", lat: 53.9915, lng: -1.5412 },
-            { name: "Doncaster", lat: 53.5228, lng: -1.1312 }
-        ];
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 53.8, lng: -1.55 },
-                zoom: 8
-            });
-        }
-
-        function search() {
-            const postcode = document.getElementById("postcode").value;
-            const radius = parseInt(document.getElementById("radius").value);
-
-            if (!postcode) {
-                alert("Please enter a postcode.");
-                return;
-            }
-
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ address: postcode }, function(results, status) {
-                if (status === "OK") {
-                    const userLocation = results[0].geometry.location;
-                    map.setCenter(userLocation);
-                    map.setZoom(10);
-
-                    // Clear previous markers
-                    markers.forEach(m => m.setMap(null));
-                    markers = [];
-
-                    stations.forEach(station => {
-                        const distance = haversine(userLocation.lat(), userLocation.lng(), station.lat, station.lng);
-                        if (distance <= radius) {
-                            const marker = new google.maps.Marker({
-                                position: { lat: station.lat, lng: station.lng },
-                                map: map,
-                                title: station.name
-                            });
-                            markers.push(marker);
-                        }
-                    });
-
-                    if (markers.length === 0) {
-                        alert("No stations found within the selected radius.");
-                    }
-                } else {
-                    alert("Postcode not found.");
-                }
-            });
-        }
-
-        function haversine(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; // miles
-            const dLat = toRad(lat2 - lat1);
-            const dLon = toRad(lon2 - lon1);
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        function toRad(value) {
-            return value * Math.PI / 180;
-        }
-
-        function reset() {
-            document.getElementById("postcode").value = "";
-            document.getElementById("radius").value = "10";
-            markers.forEach(m => m.setMap(null));
-            markers = [];
-            map.setCenter({ lat: 53.8, lng: -1.55 });
-            map.setZoom(8);
-        }
-    </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
-    </script>
+    <button id="searchBtn">Search</button>
+    <button id="resetBtn">Reset</button>
+    <div id="filters">
+      <label><input type="checkbox" class="status-filter" value="Wholetime" checked> Wholetime</label>
+      <label><input type="checkbox" class="status-filter" value="Retained" checked> Retained</label>
+      <label><input type="checkbox" class="status-filter" value="Day Crewed" checked> Day Crewed</label>
+    </div>
+  </section>
+  <section id="map"></section>
+  <section id="results">
+    <ul id="stationsList"></ul>
+  </section>
+  <script src="script.js"></script>
 </body>
 </html>

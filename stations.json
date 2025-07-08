@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Leeds Fire Station",
+    "postcode": "LS1 3AB",
+    "lat": 53.7997,
+    "lng": -1.5492,
+    "status": "Wholetime",
+    "url": "https://www.ukfirestations.co.uk/Leeds"
+  },
+  {
+    "name": "Bradford Fire Station",
+    "postcode": "BD1 1AA",
+    "lat": 53.7936,
+    "lng": -1.7521,
+    "status": "Retained",
+    "url": "https://www.ukfirestations.co.uk/Bradford"
+  }
+]
