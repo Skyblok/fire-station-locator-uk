@@ -1,3 +1,3 @@
 # Fire Station Locator UK App
 
-Deployed on Vercel.
+Live mapping app for locating fire stations by postcode and crewing status.
