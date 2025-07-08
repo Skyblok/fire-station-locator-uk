@@ -1,69 +1,81 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fire Station Locator UK</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #2c2f4a;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        #map {
-            height: 500px;
-            width: 100%;
-            margin-top: 20px;
-        }
-    </style>
+  <title>Fire Station Locator UK</title>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+    header { background: #2c2c4d; color: white; padding: 20px; text-align: center; font-size: 24px; }
+    main { padding: 20px; }
+    label, select, input { display: block; margin-bottom: 10px; font-size: 16px; }
+    #map { height: 500px; width: 100%; margin-top: 20px; }
+    button { padding: 10px 20px; margin-right: 10px; }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Fire Station Locator UK</h1>
-    </header>
-    <main>
-        <label for="postcode">Enter postcode:</label><br />
-        <input type="text" id="postcode" name="postcode" placeholder="e.g., BD18 4BY" /><br /><br />
-        <label for="radius">Search radius (miles):</label><br />
-        <select id="radius">
-            <option>1 mile</option>
-            <option selected>5 miles</option>
-            <option>10 miles</option>
-            <option>15 miles</option>
-        </select><br /><br />
-        <button onclick="searchStations()">Search</button>
-        <button onclick="resetMap()">Reset</button>
-        <div id="map"></div>
-    </main>
+  <header>Fire Station Locator UK</header>
+  <main>
+    <label for="postcode">Enter postcode:</label>
+    <input type="text" id="postcode" value="BD18 4BY">
 
-    <script>
-        let map;
-        function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 53.8, lng: -1.75 },
-                zoom: 10
-            });
-        }
+    <label for="radius">Search radius (miles):</label>
+    <select id="radius">
+      <option>5 miles</option>
+      <option>10 miles</option>
+      <option>20 miles</option>
+    </select>
 
-        function searchStations() {
-            alert("This is where fire station search logic will go.");
-        }
+    <button onclick="searchStations()">Search</button>
+    <button onclick="resetMap()">Reset</button>
 
-        function resetMap() {
-            initMap();
-        }
-    </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
-    </script>
+    <div id="map"></div>
+  </main>
+
+  <script>
+    let map;
+    let markers = [];
+
+    const mockStations = [
+      { name: "Shipley Fire Station", lat: 53.835, lng: -1.776 },
+      { name: "Bradford Fire Station", lat: 53.794, lng: -1.752 },
+      { name: "Leeds Central Fire Station", lat: 53.797, lng: -1.540 }
+    ];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 53.8, lng: -1.75 },
+        zoom: 10,
+      });
+    }
+
+    function searchStations() {
+      clearMarkers();
+      mockStations.forEach(station => {
+        const marker = new google.maps.Marker({
+          position: { lat: station.lat, lng: station.lng },
+          map: map,
+          title: station.name,
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<strong>${station.name}</strong>`,
+        });
+        marker.addListener("click", () => info.open(map, marker));
+        markers.push(marker);
+      });
+    }
+
+    function resetMap() {
+      clearMarkers();
+      map.setCenter({ lat: 53.8, lng: -1.75 });
+      map.setZoom(10);
+    }
+
+    function clearMarkers() {
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap" async defer></script>
 </body>
 </html>
