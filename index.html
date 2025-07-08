@@ -1,15 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fire Station Locator UK App</title>
+  <title>Fire Station Locator UK</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 2em; }
-    h1 { color: #A02DA0; } /* Electric pink / magenta */
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #292B40; color: white; padding: 1em; text-align: center; }
+    #map { height: 80vh; width: 100%; }
+    .controls { padding: 1em; background: #f4f4f4; }
+    .controls input, .controls select { padding: 0.5em; margin: 0.5em 0; width: 100%; }
   </style>
 </head>
 <body>
-  <h1>Fire Station Locator UK</h1>
-  <p>This is a placeholder for the full app with Google Maps, postcode search, filters, and station data.</p>
+  <header><h1>Fire Station Locator UK</h1></header>
+  <div class="controls">
+    <label>Enter postcode:</label>
+    <input type="text" id="postcode" placeholder="e.g. BD18 4BY">
+    <label>Search radius (miles):</label>
+    <select id="radius">
+      <option value="1">1 mile</option>
+      <option value="5" selected>5 miles</option>
+      <option value="10">10 miles</option>
+      <option value="25">25 miles</option>
+      <option value="50">50 miles</option>
+      <option value="100">100 miles</option>
+    </select>
+    <button onclick="searchStations()">Search</button>
+    <button onclick="resetMap()">Reset</button>
+  </div>
+  <div id="map"></div>
+  <script>
+    function initMap() {
+      const map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 53.8, lng: -1.75 },
+        zoom: 8,
+        mapTypeId: 'roadmap'
+      });
+      window.map = map;
+    }
+
+    function searchStations() {
+      alert("This will trigger the search using Google Maps and display fire stations by radius.");
+    }
+
+    function resetMap() {
+      initMap();
+    }
+
+    window.onload = initMap;
+  </script>
 </body>
 </html>

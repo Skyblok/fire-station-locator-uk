@@ -1,3 +1,3 @@
-# Fire Station Locator UK App
+# Fire Station Locator UK
 
-Live mapping app for locating fire stations by postcode and crewing status.
+A live web app to search for fire stations by postcode and crewing status.
