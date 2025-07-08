@@ -1,81 +1,114 @@
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Fire Station Locator UK</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-      }
-      header {
-        background-color: #2c2c44;
-        color: #fff;
-        padding: 20px;
-        text-align: center;
-      }
-      main {
-        padding: 20px;
-      }
-      #map {
-        height: 500px;
-        width: 100%;
-        margin-top: 20px;
-      }
-      label, select, input {
-        display: block;
-        margin: 10px 0;
-      }
-      button {
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Fire Station Locator UK</h1>
-    </header>
-    <main>
-      <label for="postcode">Enter postcode:</label>
-      <input type="text" id="postcode" placeholder="e.g. LS1 1UR" />
+<head>
+  <title>Fire Station Locator UK</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: left;
+      padding: 20px;
+    }
+    #map {
+      height: 500px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    label, select, input {
+      margin-top: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Fire Station Locator UK</h2>
+  <label for="postcode">Enter postcode:</label>
+  <input type="text" id="postcode" placeholder="e.g. LS1 1UR">
 
-      <label for="radius">Search radius (miles):</label>
-      <select id="radius">
-        <option>1 mile</option>
-        <option>5 miles</option>
-        <option selected>10 miles</option>
-        <option>20 miles</option>
-        <option>50 miles</option>
-        <option>100 miles</option>
-      </select>
+  <label for="radius">Search radius (miles):</label>
+  <select id="radius">
+    <option value="1">1 mile</option>
+    <option value="5">5 miles</option>
+    <option value="10">10 miles</option>
+    <option value="20">20 miles</option>
+    <option value="50">50 miles</option>
+    <option value="100">100 miles</option>
+  </select>
 
-      <button onclick="search()">Search</button>
-      <button onclick="resetMap()">Reset</button>
+  <button onclick="searchStations()">Search</button>
+  <button onclick="resetMap()">Reset</button>
 
-      <div id="map"></div>
-    </main>
+  <div id="map"></div>
 
-    <script>
-      let map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 53.8008, lng: -1.5491 }, // Leeds
-          zoom: 8,
+  <script>
+    let map;
+    let markers = [];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 53.8, lng: -1.55}, // Leeds
+        zoom: 8
+      });
+    }
+
+    function resetMap() {
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+      map.setZoom(8);
+      map.setCenter({lat: 53.8, lng: -1.55});
+    }
+
+    function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
+      const R = 3958.8; // Radius of the Earth in miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        0.5 - Math.cos(dLat)/2 +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        (1 - Math.cos(dLon)) / 2;
+      return R * 2 * Math.asin(Math.sqrt(a));
+    }
+
+    async function searchStations() {
+      const postcode = document.getElementById("postcode").value;
+      const radius = parseInt(document.getElementById("radius").value);
+      if (!postcode) return alert("Please enter a postcode.");
+
+      const geoRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${postcode}&key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ`);
+      const geoData = await geoRes.json();
+      if (!geoData.results.length) return alert("Postcode not found.");
+      const userLoc = geoData.results[0].geometry.location;
+
+      const res = await fetch("https://raw.githubusercontent.com/Skyblok/fire-station-locator-uk/main/fire_stations_sample.json");
+      const stations = await res.json();
+
+      const nearby = stations.filter(station => {
+        const d = getDistanceFromLatLonInMiles(userLoc.lat, userLoc.lng, station.lat, station.lng);
+        return d <= radius;
+      });
+
+      resetMap();
+      map.setCenter(userLoc);
+      map.setZoom(10);
+
+      nearby.forEach(station => {
+        const marker = new google.maps.Marker({
+          position: {lat: station.lat, lng: station.lng},
+          map,
+          title: station.name
         });
-      }
-
-      function search() {
-        alert("Search logic will go here");
-      }
-
-      function resetMap() {
-        initMap();
-      }
-    </script>
-    <script async
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
-    </script>
-  </body>
+        const infowindow = new google.maps.InfoWindow({
+          content: `<strong>${station.name}</strong><br>Status: ${station.status}`
+        });
+        marker.addListener("click", () => infowindow.open(map, marker));
+        markers.push(marker);
+      });
+    }
+  </script>
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
+  </script>
+</body>
 </html>
