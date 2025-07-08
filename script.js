@@ -1,3 +1,4 @@
+
 let map;
 let markers = [];
 let infoWindow;
@@ -71,7 +72,7 @@ function displayStations(stations) {
   markers = [];
 
   const list = document.getElementById('stationsList');
-  list.innerHTML = '';
+  if (list) list.innerHTML = '';
 
   stations.forEach(station => {
     const marker = new google.maps.Marker({
@@ -84,19 +85,21 @@ function displayStations(stations) {
     });
 
     marker.addListener('click', () => {
-      infoWindow.setContent(\`
-        <strong>\${station.name}</strong><br>
-        \${station.postcode}<br>
-        <a href="\${station.url}" target="_blank">View Details</a>
-      \`);
+      infoWindow.setContent(
+        `<strong>${station.name}</strong><br>
+        ${station.postcode}<br>
+        <a href="${station.url}" target="_blank">View Details</a>`
+      );
       infoWindow.open(map, marker);
     });
 
     markers.push(marker);
 
-    const li = document.createElement('li');
-    li.innerHTML = \`\${station.name} (\${station.status}) - \${station.postcode}\`;
-    list.appendChild(li);
+    if (list) {
+      const li = document.createElement('li');
+      li.innerHTML = `${station.name} (${station.status}) - ${station.postcode}`;
+      list.appendChild(li);
+    }
   });
 }
 
@@ -111,7 +114,7 @@ function getMarkerColor(status) {
 
 function haversine(lat1, lon1, lat2, lon2) {
   function toRad(x) { return x * Math.PI / 180; }
-  const R = 3958.8; // miles
+  const R = 3958.8;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a = Math.sin(dLat / 2) ** 2 +
