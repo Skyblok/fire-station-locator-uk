@@ -1,0 +1,72 @@
+[
+  {
+    "name":"Leeds Fire Station",
+    "postcode":"LS1 3AD",
+    "latitude":53.7965,
+    "longitude":-1.5478,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Bradford Fire Station",
+    "postcode":"BD1 1HY",
+    "latitude":53.7939,
+    "longitude":-1.7521,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Shipley Fire Station",
+    "postcode":"BD18 3AA",
+    "latitude":53.834,
+    "longitude":-1.7766,
+    "status":"On-Call"
+  },
+  {
+    "name":"Wakefield Fire Station",
+    "postcode":"WF1 1AA",
+    "latitude":53.6833,
+    "longitude":-1.4977,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Otley Fire Station",
+    "postcode":"LS21 1AG",
+    "latitude":53.905,
+    "longitude":-1.6925,
+    "status":"On-Call"
+  },
+  {
+    "name":"Keighley Fire Station",
+    "postcode":"BD21 3SL",
+    "latitude":53.866,
+    "longitude":-1.9093,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Halifax Fire Station",
+    "postcode":"HX1 1AA",
+    "latitude":53.7214,
+    "longitude":-1.8636,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Ilkley Fire Station",
+    "postcode":"LS29 8AG",
+    "latitude":53.9233,
+    "longitude":-1.8216,
+    "status":"On-Call"
+  },
+  {
+    "name":"Pudsey Fire Station",
+    "postcode":"LS28 7UH",
+    "latitude":53.7961,
+    "longitude":-1.6651,
+    "status":"Wholetime"
+  },
+  {
+    "name":"Morley Fire Station",
+    "postcode":"LS27 9SB",
+    "latitude":53.7436,
+    "longitude":-1.6029,
+    "status":"Wholetime"
+  }
+]
