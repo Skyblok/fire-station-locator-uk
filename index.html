@@ -1,94 +1,55 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fire Station Locator UK</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #0a2a4d;
-      color: white;
-    }
-    header {
-      text-align: center;
-      padding: 20px;
-      background-color: #003366;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .controls {
-      padding: 10px;
-      background-color: #003366;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    input, select {
-      padding: 5px;
-      font-size: 16px;
-    }
-    button {
-      padding: 6px 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    #map {
-      height: 90vh;
-      width: 100%;
-    }
+    body { font-family: Arial; background-color: #0a2e4d; color: white; margin: 0; }
+    h1 { text-align: center; padding: 20px 0; }
+    #controls { text-align: center; padding: 10px; background-color: #082840; }
+    input, select, button { margin: 5px; padding: 5px; }
+    #map { height: 80vh; width: 100%; }
   </style>
 </head>
 <body>
-  <header>Fire Station Locator UK</header>
-  <div class="controls">
-    <input id="postcode" type="text" placeholder="Enter postcode" />
+  <h1>Fire Station Locator UK</h1>
+  <div id="controls">
+    <input id="postcode" type="text" placeholder="Enter postcode">
     <select id="radius">
       <option value="5">5 miles</option>
-      <option value="10" selected>10 miles</option>
-      <option value="20">20 miles</option>
+      <option value="10">10 miles</option>
+      <option value="25">25 miles</option>
       <option value="50">50 miles</option>
     </select>
-    <button onclick="search()">Search</button>
-    <button onclick="resetMap()">Reset</button>
-    <label><input type="checkbox" id="wholetime" checked /> Wholetime</label>
-    <label><input type="checkbox" id="retained" checked /> Retained</label>
-    <label><input type="checkbox" id="day" checked /> Day Crewed</label>
+    <button onclick="searchStations()">Search</button>
+    <button onclick="resetSearch()">Reset</button>
+    <label><input type="checkbox" id="wholetime" checked> Wholetime</label>
+    <label><input type="checkbox" id="retained" checked> Retained</label>
+    <label><input type="checkbox" id="day" checked> Day Crewed</label>
   </div>
   <div id="map"></div>
 
   <script>
-    // Dummy wrapper called by Google Maps API
+    let map;
     function initMap() {
-      window.loadFireStationLocator();
-    }
-
-    // Actual logic for initializing the map
-    window.loadFireStationLocator = function () {
-      window.map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 53.8, lng: -1.55 },
-        zoom: 9,
-        styles: [{ elementType: "geometry", stylers: [{ color: "#1d2c4d" }] }]
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 53.8008, lng: -1.5491 },
+        zoom: 10,
+        styles: [{ "elementType": "geometry", "stylers": [{ "color": "#1d2c4d" }] }]
       });
     }
-
-    function search() {
-      alert("Search triggered — this will run geocoding and search logic");
+    function searchStations() {
+      alert("Search functionality coming soon.");
     }
-
-    function resetMap() {
+    function resetSearch() {
       document.getElementById("postcode").value = "";
-      document.getElementById("radius").value = "10";
+      document.getElementById("radius").value = "5";
     }
   </script>
-
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030...&callback=initMap&libraries=places">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
   </script>
 </body>
 </html>
