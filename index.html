@@ -4,52 +4,55 @@
 <head>
   <title>Fire Station Locator UK</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; background-color: #0a2e4d; color: white; margin: 0; }
-    h1 { text-align: center; padding: 20px 0; }
-    #controls { text-align: center; padding: 10px; background-color: #082840; }
-    input, select, button { margin: 5px; padding: 5px; }
+    body { font-family: Arial; background: #0a2e52; color: white; margin: 0; }
     #map { height: 80vh; width: 100%; }
+    .controls { padding: 10px; background: #0a2e52; }
+    input, select, button { margin: 5px; }
   </style>
 </head>
 <body>
-  <h1>Fire Station Locator UK</h1>
-  <div id="controls">
-    <input id="postcode" type="text" placeholder="Enter postcode">
+  <div class="controls">
+    <input type="text" id="postcode" placeholder="Enter postcode">
     <select id="radius">
-      <option value="5">5 miles</option>
-      <option value="10">10 miles</option>
-      <option value="25">25 miles</option>
-      <option value="50">50 miles</option>
+      <option>5 miles</option>
+      <option selected>10 miles</option>
+      <option>20 miles</option>
     </select>
-    <button onclick="searchStations()">Search</button>
-    <button onclick="resetSearch()">Reset</button>
+    <button onclick="search()">Search</button>
+    <button onclick="reset()">Reset</button>
     <label><input type="checkbox" id="wholetime" checked> Wholetime</label>
     <label><input type="checkbox" id="retained" checked> Retained</label>
-    <label><input type="checkbox" id="day" checked> Day Crewed</label>
+    <label><input type="checkbox" id="daycrewed" checked> Day Crewed</label>
   </div>
   <div id="map"></div>
 
   <script>
     let map;
+
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 53.8008, lng: -1.5491 },
+        center: { lat: 53.8, lng: -1.55 },
         zoom: 10,
-        styles: [{ "elementType": "geometry", "stylers": [{ "color": "#1d2c4d" }] }]
+        styles: [{ elementType: 'geometry', stylers: [{ color: '#1d2c4d' }] }]
       });
     }
-    function searchStations() {
-      alert("Search functionality coming soon.");
+
+    function search() {
+      alert('Search functionality coming soon.');
     }
-    function resetSearch() {
+
+    function reset() {
       document.getElementById("postcode").value = "";
-      document.getElementById("radius").value = "5";
+      document.getElementById("radius").selectedIndex = 1;
+      document.getElementById("wholetime").checked = true;
+      document.getElementById("retained").checked = true;
+      document.getElementById("daycrewed").checked = true;
     }
   </script>
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap">
+
+  <script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQFt030Dit0bCRw6TluHmCzOQmkZ-ISEQ&callback=initMap&libraries=places">
   </script>
 </body>
 </html>
