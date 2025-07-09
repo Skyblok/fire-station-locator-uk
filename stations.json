@@ -1,18 +1,72 @@
 [
   {
-    "name": "Leeds Fire Station",
+    "name": "Leeds Central Fire Station",
     "postcode": "LS1 3AB",
-    "lat": 53.7997,
-    "lng": -1.5492,
-    "status": "Wholetime",
-    "url": "https://www.ukfirestations.co.uk/Leeds"
+    "lat": 53.7976,
+    "lng": -1.5481,
+    "status": "Wholetime"
   },
   {
     "name": "Bradford Fire Station",
-    "postcode": "BD1 1AA",
-    "lat": 53.7936,
-    "lng": -1.7521,
-    "status": "Retained",
-    "url": "https://www.ukfirestations.co.uk/Bradford"
+    "postcode": "BD7 1RB",
+    "lat": 53.7877,
+    "lng": -1.767,
+    "status": "Wholetime"
+  },
+  {
+    "name": "Shipley Fire Station",
+    "postcode": "BD18 3DL",
+    "lat": 53.8345,
+    "lng": -1.7766,
+    "status": "Day Crewed"
+  },
+  {
+    "name": "Wakefield Fire Station",
+    "postcode": "WF1 2HN",
+    "lat": 53.683,
+    "lng": -1.4962,
+    "status": "Wholetime"
+  },
+  {
+    "name": "Pudsey Fire Station",
+    "postcode": "LS28 6BL",
+    "lat": 53.7928,
+    "lng": -1.6626,
+    "status": "Retained"
+  },
+  {
+    "name": "Otley Fire Station",
+    "postcode": "LS21 1HE",
+    "lat": 53.9057,
+    "lng": -1.6935,
+    "status": "Retained"
+  },
+  {
+    "name": "Moortown Fire Station",
+    "postcode": "LS17 6DJ",
+    "lat": 53.8417,
+    "lng": -1.5289,
+    "status": "Day Crewed"
+  },
+  {
+    "name": "Hunslet Fire Station",
+    "postcode": "LS10 1JY",
+    "lat": 53.782,
+    "lng": -1.5306,
+    "status": "Wholetime"
+  },
+  {
+    "name": "Batley Fire Station",
+    "postcode": "WF17 6DE",
+    "lat": 53.7033,
+    "lng": -1.6356,
+    "status": "Retained"
+  },
+  {
+    "name": "Morley Fire Station",
+    "postcode": "LS27 8UE",
+    "lat": 53.7445,
+    "lng": -1.5951,
+    "status": "Day Crewed"
   }
 ]
